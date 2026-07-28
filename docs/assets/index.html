@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Git // Cheatsheet</title>
+<meta name="description" content="Hoja de referencia de Git: comandos, atajos, configuracion SSH y errores comunes.">
+<meta name="color-scheme" content="dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9889;</text></svg>">
+<style>
+:root{
+  --bg:#07060f; --bg2:#0d0b1c; --box:#14112b; --line:#241f45;
+  --txt:#e9e6f8; --dim:#9b95bd;
+  --cyan:#00e5ff; --magenta:#ff2bd6; --green:#39ff88;
+  --yellow:#ffd166; --purple:#a06bff; --orange:#ff7847;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,'Courier New',monospace;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:112px}
+body{
+  background:var(--bg); color:var(--txt); font-family:var(--sans);
+  line-height:1.55; -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+body::before{
+  content:''; position:fixed; inset:0; z-index:-2; pointer-events:none;
+  background:
+    radial-gradient(720px 460px at 0% 0%,rgba(255,43,214,.16),transparent 60%),
+    radial-gradient(680px 440px at 100% 0%,rgba(0,229,255,.14),transparent 60%),
+    radial-gradient(760px 520px at 100% 100%,rgba(160,107,255,.14),transparent 60%),
+    radial-gradient(560px 380px at 0% 100%,rgba(0,229,255,.10),transparent 60%);
+}
+body::after{
+  content:''; position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.5;
+  background-image:linear-gradient(rgba(36,31,69,.55) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(36,31,69,.55) 1px,transparent 1px);
+  background-size:34px 34px;
+  -webkit-mask-image:radial-gradient(circle at 50% 30%,#000 20%,transparent 85%);
+          mask-image:radial-gradient(circle at 50% 30%,#000 20%,transparent 85%);
+}
+.wrap{max-width:1280px;margin:0 auto;padding:0 20px}
+code{font-family:var(--mono);font-size:.94em}
+a{color:inherit;text-decoration:none}
+
+/* ---------- accent helper ---------- */
+.c-cyan{--a:var(--cyan)} .c-magenta{--a:var(--magenta)} .c-green{--a:var(--green)}
+.c-yellow{--a:var(--yellow)} .c-purple{--a:var(--purple)} .c-orange{--a:var(--orange)}
+
+/* ---------- hero ---------- */
+.hero{padding:76px 0 46px;position:relative}
+.prompt{font-family:var(--mono);color:var(--green);font-size:.9rem;letter-spacing:.04em;margin-bottom:26px}
+.prompt::after{content:'_';animation:blink 1.1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+h1{font-size:clamp(3.2rem,12vw,7.5rem);line-height:.92;font-weight:900;letter-spacing:-.03em}
+h1 .g{color:var(--cyan);text-shadow:0 0 32px rgba(0,229,255,.55),0 0 8px rgba(0,229,255,.4)}
+h1 .m{color:var(--magenta);text-shadow:0 0 32px rgba(255,43,214,.55),0 0 8px rgba(255,43,214,.4)}
+.tag{margin-top:20px;font-size:1.06rem;color:var(--txt)}
+.tag2{font-family:var(--mono);font-size:.85rem;color:var(--dim);margin-top:6px}
+.rule{height:1px;background:linear-gradient(90deg,var(--magenta),var(--cyan),var(--purple),transparent);
+      margin:30px 0 0;box-shadow:0 0 14px rgba(160,107,255,.55)}
+.quick{margin-top:30px;background:var(--box);border-left:3px solid var(--cyan);
+       border-radius:10px;padding:16px 20px;overflow-x:auto}
+.quick .h{font-family:var(--mono);font-size:.78rem;color:var(--green);margin-bottom:8px}
+.quick .l{font-family:var(--mono);font-size:.95rem;white-space:nowrap}
+.quick .l b{color:var(--cyan);font-weight:700}
+.quick .l i{color:var(--dim);font-style:normal;padding:0 8px}
+
+/* ---------- sticky bar ---------- */
+.bar{position:sticky;top:0;z-index:50;background:rgba(7,6,15,.82);
+     backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;gap:14px;align-items:center;padding-top:12px;padding-bottom:12px;flex-wrap:wrap}
+.brand{font-family:var(--mono);font-weight:700;color:var(--cyan);font-size:.9rem;white-space:nowrap}
+.search{flex:1;min-width:200px;position:relative}
+.search input{width:100%;background:var(--box);border:1px solid var(--line);color:var(--txt);
+  border-radius:9px;padding:9px 14px 9px 34px;font-family:var(--mono);font-size:.85rem;outline:none}
+.search input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,229,255,.15)}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);opacity:.5}
+.hits{font-family:var(--mono);font-size:.78rem;color:var(--dim);white-space:nowrap}
+
+/* ---------- nav ---------- */
+nav{padding:26px 0 6px}
+nav .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:9px}
+nav a{display:flex;gap:11px;align-items:center;background:var(--box);border-radius:9px;
+      padding:11px 14px;font-size:.88rem;border-left:3px solid var(--a);
+      transition:transform .16s ease, box-shadow .16s ease, background .16s ease}
+nav a b{font-family:var(--mono);color:var(--a);font-size:.82rem}
+nav a:hover{transform:translateX(4px);background:#191536;box-shadow:0 0 20px -6px var(--a)}
+
+/* ---------- sections ---------- */
+.sec{padding:52px 0 8px}
+.sec-head{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);
+          padding-bottom:12px;margin-bottom:24px}
+.sec-head .num{font-family:var(--mono);color:var(--a);font-size:.82rem;opacity:.85}
+.sec-head h2{font-size:clamp(1.5rem,4vw,2.1rem);font-weight:900;letter-spacing:-.02em;
+             color:var(--a);text-shadow:0 0 26px color-mix(in srgb,var(--a) 45%,transparent)}
+.masonry{column-count:3;column-gap:18px}
+@media(max-width:1050px){.masonry{column-count:2}}
+@media(max-width:680px){.masonry{column-count:1}}
+.block,.note{break-inside:avoid;margin:0 0 18px;display:inline-block;width:100%}
+.block h3{font-size:.86rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--a);background:color-mix(in srgb,var(--a) 15%,transparent);
+  border-left:3px solid var(--a);border-radius:6px;padding:9px 12px;margin-bottom:9px}
+.block ul{list-style:none}
+.cmd{background:var(--box);border-left:3px solid var(--a);border-radius:7px;
+     padding:10px 12px;margin-bottom:7px;transition:background .15s ease,box-shadow .15s ease}
+.cmd:hover{background:#1a1638;box-shadow:0 0 22px -10px var(--a)}
+.cmd-line{display:flex;align-items:flex-start;gap:8px}
+.cmd code{flex:1;color:var(--txt);font-weight:600;font-size:.82rem;word-break:break-word}
+.cmd code::before{content:'$ ';color:var(--a);opacity:.8}
+.cmd p{color:var(--dim);font-size:.775rem;margin-top:4px;line-height:1.45}
+.copy{opacity:0;background:none;border:1px solid var(--line);color:var(--dim);cursor:pointer;
+  font-family:var(--mono);font-size:.63rem;border-radius:5px;padding:2px 6px;transition:.15s;flex:none}
+.cmd:hover .copy{opacity:1}
+.copy:hover{color:var(--a);border-color:var(--a)}
+.copy.ok{opacity:1;color:var(--green);border-color:var(--green)}
+.note{background:color-mix(in srgb,var(--a) 10%,transparent);border:1px solid color-mix(in srgb,var(--a) 45%,transparent);
+      border-radius:9px;padding:13px 15px}
+.note h4{color:var(--a);font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.note p{font-size:.82rem;color:var(--txt)}
+.note code{background:rgba(0,0,0,.35);padding:1px 5px;border-radius:4px;color:var(--a);font-size:.78rem}
+
+/* ---------- mapa mental ---------- */
+#mapa{padding-bottom:20px}
+.mind{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:center;margin-top:8px}
+.mcol{display:grid;gap:18px}
+.core{width:132px;height:132px;border-radius:50%;background:var(--bg2);
+  border:2px solid var(--cyan);display:grid;place-content:center;text-align:center;
+  box-shadow:0 0 60px rgba(0,229,255,.35),inset 0 0 40px rgba(0,229,255,.12);position:relative}
+.core::after{content:'';position:absolute;inset:-11px;border-radius:50%;
+  border:1px solid rgba(255,43,214,.55)}
+.core b{font-size:1.9rem;font-weight:900;color:var(--cyan);text-shadow:0 0 22px rgba(0,229,255,.7)}
+.core span{font-family:var(--mono);font-size:.62rem;color:var(--dim)}
+.mnode{background:var(--box);border:1px solid color-mix(in srgb,var(--a) 55%,transparent);
+  border-radius:11px;overflow:hidden;transition:transform .16s ease,box-shadow .16s ease}
+.mnode:hover{transform:translateY(-3px);box-shadow:0 0 30px -10px var(--a)}
+.mnode h4{background:var(--a);color:#07060f;font-size:.8rem;font-weight:900;
+  letter-spacing:.05em;padding:8px 13px}
+.mnode ul{list-style:none;padding:11px 13px}
+.mnode li{font-family:var(--mono);font-size:.76rem;padding:3px 0 3px 14px;position:relative;color:var(--txt)}
+.mnode li::before{content:'';position:absolute;left:0;top:10px;width:5px;height:5px;
+  border-radius:50%;background:var(--a)}
+@media(max-width:900px){.mind{grid-template-columns:1fr}.core{margin:0 auto}}
+.cycle{margin-top:26px;background:var(--box);border-left:3px solid var(--yellow);
+  border-radius:10px;padding:16px 20px}
+.cycle .h{font-size:.76rem;color:var(--dim);letter-spacing:.08em;margin-bottom:11px}
+.steps{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.step{font-family:var(--mono);font-size:.82rem;padding:6px 13px;border-radius:7px;
+  border:1px solid var(--a);color:var(--a);background:color-mix(in srgb,var(--a) 16%,transparent)}
+.arrow{color:var(--dim);font-family:var(--mono)}
+.cycle .foot{font-family:var(--mono);font-size:.72rem;color:var(--dim);margin-top:12px}
+
+footer{border-top:1px solid var(--line);margin-top:56px;padding:26px 0 44px;
+  font-family:var(--mono);font-size:.76rem;color:var(--dim);
+  display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.top{position:fixed;right:20px;bottom:20px;width:42px;height:42px;border-radius:50%;
+  background:var(--box);border:1px solid var(--cyan);color:var(--cyan);cursor:pointer;
+  display:grid;place-content:center;opacity:0;pointer-events:none;transition:.22s;z-index:60}
+.top.on{opacity:1;pointer-events:auto}
+.hide{display:none !important}
+@media print{body::after{display:none}.bar,.top,.copy{display:none}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="prompt">bran@dev:~$ git --version </div>
+    <h1><span class="g">GIT</span> <span class="m">//</span><br><span class="m">CHEATSHEET</span></h1>
+    <p class="tag">Gu&iacute;a r&aacute;pida de comandos, atajos y configuraci&oacute;n SSH.</p>
+    <p class="tag2">de "git init" a "git rebase" &mdash; todo en una sola p&aacute;gina</p>
+    <div class="rule"></div>
+    <div class="quick">
+      <div class="h"># los 4 comandos que usar&aacute;s el 90% del tiempo</div>
+      <div class="l"><b>git status</b><i>-&gt;</i><b>git add .</b><i>-&gt;</i><b>git commit -m "msg"</b><i>-&gt;</i><b>git push</b></div>
+    </div>
+  </div>
+</header>
+
+<div class="bar">
+  <div class="wrap">
+    <span class="brand">git --help</span>
+    <div class="search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Buscar comando...  (pulsa / )" autocomplete="off">
+    </div>
+    <span class="hits" id="hits"></span>
+  </div>
+</div>
+
+<nav class="wrap"><div class="grid">
+<a href="#config" class="c-cyan"><b>01</b> Configuracion inicial</a>
+<a href="#ssh" class="c-green"><b>02</b> Conexión por SSH</a>
+<a href="#repos" class="c-magenta"><b>03</b> Crear y clonar repositorios</a>
+<a href="#diario" class="c-yellow"><b>04</b> Flujo diario</a>
+<a href="#sync" class="c-orange"><b>05</b> Sincronizar con el remoto</a>
+<a href="#ramas" class="c-purple"><b>06</b> Ramas, merge y rebase</a>
+<a href="#deshacer" class="c-cyan"><b>07</b> Deshacer cambios</a>
+<a href="#tags" class="c-green"><b>08</b> Tags, alias y atajos</a>
+<a href="#errores" class="c-magenta"><b>09</b> Errores comunes</a>
+<a href="#mapa" class="c-yellow"><b>10</b> Mapa mental del flujo Git</a>
+</div></nav>
+
+<main class="wrap">
+<section id="config" class="sec c-cyan">
+<div class="sec-head"><span class="num">01</span><h2>Configuracion inicial</h2></div>
+<div class="masonry"><div class="block c-cyan"><h3>Identidad (obligatorio)</h3><ul><li class="cmd" data-q="git --version comprueba que git esté instalado y su versión."><div class="cmd-line"><code>git --version</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Comprueba que Git esté instalado y su versión.</p></li>
+<li class="cmd" data-q="git config --global user.name &quot;bran0017&quot; nombre que aparecerá en cada commit."><div class="cmd-line"><code>git config --global user.name &quot;Bran0017&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Nombre que aparecerá en cada commit.</p></li>
+<li class="cmd" data-q="git config --global user.email &quot;tu@mail.com&quot; debe coincidir con el correo de tu cuenta de github."><div class="cmd-line"><code>git config --global user.email &quot;tu@mail.com&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Debe coincidir con el correo de tu cuenta de GitHub.</p></li>
+<li class="cmd" data-q="git config --global init.defaultbranch main que los repos nuevos usen &quot;main&quot; en vez de &quot;master&quot;."><div class="cmd-line"><code>git config --global init.defaultBranch main</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Que los repos nuevos usen "main" en vez de "master".</p></li>
+<li class="cmd" data-q="git config --global core.editor &quot;code --wait&quot; usar vs code como editor de mensajes de commit."><div class="cmd-line"><code>git config --global core.editor &quot;code --wait&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Usar VS Code como editor de mensajes de commit.</p></li>
+<li class="cmd" data-q="git config --global pull.rebase false define el comportamiento por defecto de git pull."><div class="cmd-line"><code>git config --global pull.rebase false</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Define el comportamiento por defecto de git pull.</p></li></ul></div>
+<div class="block c-green"><h3>Ver y editar la configuración</h3><ul><li class="cmd" data-q="git config --list lista toda la configuración activa."><div class="cmd-line"><code>git config --list</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Lista toda la configuración activa.</p></li>
+<li class="cmd" data-q="git config --list --show-origin además indica en qué archivo está definido cada valor."><div class="cmd-line"><code>git config --list --show-origin</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Además indica en qué archivo está definido cada valor.</p></li>
+<li class="cmd" data-q="git config user.name consulta un valor concreto."><div class="cmd-line"><code>git config user.name</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Consulta un valor concreto.</p></li>
+<li class="cmd" data-q="git config --global --edit abre ~/.gitconfig en tu editor."><div class="cmd-line"><code>git config --global --edit</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Abre ~/.gitconfig en tu editor.</p></li>
+<li class="cmd" data-q="git config --global color.ui auto activa colores en la salida de la terminal."><div class="cmd-line"><code>git config --global color.ui auto</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Activa colores en la salida de la terminal.</p></li>
+<li class="cmd" data-q="git config --global --unset alias.st elimina una clave de la configuración."><div class="cmd-line"><code>git config --global --unset alias.st</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Elimina una clave de la configuración.</p></li></ul></div>
+<div class="block c-yellow"><h3>Windows / Linux / saltos de línea</h3><ul><li class="cmd" data-q="git config --global core.autocrlf true en windows: convierte finales de línea al hacer checkout."><div class="cmd-line"><code>git config --global core.autocrlf true</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>En Windows: convierte finales de línea al hacer checkout.</p></li>
+<li class="cmd" data-q="git config --global core.autocrlf input en linux, mac o wsl: guarda siempre en formato lf."><div class="cmd-line"><code>git config --global core.autocrlf input</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>En Linux, Mac o WSL: guarda siempre en formato LF.</p></li>
+<li class="cmd" data-q="git config --global core.longpaths true windows: evita el error de rutas demasiado largas."><div class="cmd-line"><code>git config --global core.longpaths true</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Windows: evita el error de rutas demasiado largas.</p></li>
+<li class="cmd" data-q="git config --global credential.helper store guarda usuario y token para no escribirlos cada vez."><div class="cmd-line"><code>git config --global credential.helper store</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Guarda usuario y token para no escribirlos cada vez.</p></li>
+<li class="cmd" data-q="git config --global credential.helper manager windows: usa el gestor de credenciales del sistema."><div class="cmd-line"><code>git config --global credential.helper manager</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Windows: usa el gestor de credenciales del sistema.</p></li></ul></div>
+<div class="block c-magenta"><h3>Archivo .gitignore</h3><ul><li class="cmd" data-q="echo &quot;node_modules/&quot; &gt;&gt; .gitignore agrega una regla para ignorar carpetas o archivos."><div class="cmd-line"><code>echo &quot;node_modules/&quot; &gt;&gt; .gitignore</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Agrega una regla para ignorar carpetas o archivos.</p></li>
+<li class="cmd" data-q="echo &quot;.env&quot; &gt;&gt; .gitignore nunca subas claves ni variables de entorno al repositorio."><div class="cmd-line"><code>echo &quot;.env&quot; &gt;&gt; .gitignore</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Nunca subas claves ni variables de entorno al repositorio.</p></li>
+<li class="cmd" data-q="git check-ignore -v archivo.txt dice qué regla del .gitignore está ignorando un archivo."><div class="cmd-line"><code>git check-ignore -v archivo.txt</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Dice qué regla del .gitignore está ignorando un archivo.</p></li>
+<li class="cmd" data-q="git rm -r --cached . limpia el índice para reaplicar un .gitignore ya existente."><div class="cmd-line"><code>git rm -r --cached .</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Limpia el índice para reaplicar un .gitignore ya existente.</p></li>
+<li class="cmd" data-q="git status --ignored muestra también los archivos que están siendo ignorados."><div class="cmd-line"><code>git status --ignored</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Muestra también los archivos que están siendo ignorados.</p></li></ul></div>
+<div class="block c-purple"><h3>Ayuda</h3><ul><li class="cmd" data-q="git help commit manual completo de un comando."><div class="cmd-line"><code>git help commit</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Manual completo de un comando.</p></li>
+<li class="cmd" data-q="git commit -h resumen rápido de opciones."><div class="cmd-line"><code>git commit -h</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Resumen rápido de opciones.</p></li></ul></div>
+<div class="note c-purple" data-q="tip usa &lt;code&gt;--global&lt;/code&gt; para configurar todo tu usuario y omítelo para configurar solo el repositorio actual. lo local siempre pisa a lo global."><h4>Tip</h4><p>Usa <code>--global</code> para configurar todo tu usuario y omítelo para configurar solo el repositorio actual. Lo local siempre pisa a lo global.</p></div>
+<div class="note c-cyan" data-q="antes de empezar sin &lt;code&gt;user.name&lt;/code&gt; y &lt;code&gt;user.email&lt;/code&gt; configurados, git se niega a crear commits. es lo primero que debes hacer en una máquina nueva."><h4>Antes de empezar</h4><p>Sin <code>user.name</code> y <code>user.email</code> configurados, Git se niega a crear commits. Es lo primero que debes hacer en una máquina nueva.</p></div></div>
+</section>
+<section id="ssh" class="sec c-green">
+<div class="sec-head"><span class="num">02</span><h2>Conexión por SSH</h2></div>
+<div class="masonry"><div class="block c-green"><h3>Paso 1 · Generar la llave</h3><ul><li class="cmd" data-q="ssh-keygen -t ed25519 -c &quot;tu@mail.com&quot; crea el par de llaves. cuando pregunte la ruta presiona enter: no escribas nada."><div class="cmd-line"><code>ssh-keygen -t ed25519 -C &quot;tu@mail.com&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Crea el par de llaves. Cuando pregunte la ruta presiona ENTER: no escribas nada.</p></li>
+<li class="cmd" data-q="ssh-keygen -t rsa -b 4096 -c &quot;tu@mail.com&quot; alternativa si el sistema es antiguo y no soporta ed25519."><div class="cmd-line"><code>ssh-keygen -t rsa -b 4096 -C &quot;tu@mail.com&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Alternativa si el sistema es antiguo y no soporta ed25519.</p></li>
+<li class="cmd" data-q="ls -la ~/.ssh debes ver id_ed25519 (privada) e id_ed25519.pub (pública)."><div class="cmd-line"><code>ls -la ~/.ssh</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Debes ver id_ed25519 (privada) e id_ed25519.pub (pública).</p></li>
+<li class="cmd" data-q="ssh-keygen -l -f ~/.ssh/id_ed25519.pub muestra la huella digital de la llave."><div class="cmd-line"><code>ssh-keygen -l -f ~/.ssh/id_ed25519.pub</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Muestra la huella digital de la llave.</p></li></ul></div>
+<div class="block c-cyan"><h3>Paso 2 · Cargar el agente</h3><ul><li class="cmd" data-q="eval &quot;$(ssh-agent -s)&quot; inicia el agente ssh en la sesión actual."><div class="cmd-line"><code>eval &quot;$(ssh-agent -s)&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Inicia el agente SSH en la sesión actual.</p></li>
+<li class="cmd" data-q="ssh-add ~/.ssh/id_ed25519 agrega tu llave privada al agente."><div class="cmd-line"><code>ssh-add ~/.ssh/id_ed25519</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Agrega tu llave privada al agente.</p></li>
+<li class="cmd" data-q="ssh-add -l lista las llaves cargadas en el agente."><div class="cmd-line"><code>ssh-add -l</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Lista las llaves cargadas en el agente.</p></li>
+<li class="cmd" data-q="ssh-add -d descarga todas las llaves del agente."><div class="cmd-line"><code>ssh-add -D</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Descarga todas las llaves del agente.</p></li></ul></div>
+<div class="block c-magenta"><h3>Paso 3 · Copiar la llave pública</h3><ul><li class="cmd" data-q="cat ~/.ssh/id_ed25519.pub copia la salida completa y pégala en github › settings › ssh keys."><div class="cmd-line"><code>cat ~/.ssh/id_ed25519.pub</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Copia la salida completa y pégala en GitHub › Settings › SSH keys.</p></li>
+<li class="cmd" data-q="clip &lt; ~/.ssh/id_ed25519.pub windows: copia directo al portapapeles."><div class="cmd-line"><code>clip &lt; ~/.ssh/id_ed25519.pub</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Windows: copia directo al portapapeles.</p></li>
+<li class="cmd" data-q="pbcopy &lt; ~/.ssh/id_ed25519.pub macos: copia directo al portapapeles."><div class="cmd-line"><code>pbcopy &lt; ~/.ssh/id_ed25519.pub</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>macOS: copia directo al portapapeles.</p></li>
+<li class="cmd" data-q="xclip -sel clip &lt; ~/.ssh/id_ed25519.pub linux: copia directo al portapapeles."><div class="cmd-line"><code>xclip -sel clip &lt; ~/.ssh/id_ed25519.pub</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Linux: copia directo al portapapeles.</p></li></ul></div>
+<div class="block c-yellow"><h3>Paso 4 · Probar y usar</h3><ul><li class="cmd" data-q="ssh -t git@github.com respuesta esperada: &quot;hi usuario! you have successfully authenticated&quot;."><div class="cmd-line"><code>ssh -T git@github.com</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Respuesta esperada: "Hi usuario! You have successfully authenticated".</p></li>
+<li class="cmd" data-q="ssh -vt git@github.com modo detallado: útil para ver por qué falla la autenticación."><div class="cmd-line"><code>ssh -vT git@github.com</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Modo detallado: útil para ver por qué falla la autenticación.</p></li>
+<li class="cmd" data-q="git clone git@github.com:usuario/repo.git clonar usando ssh en vez de https."><div class="cmd-line"><code>git clone git@github.com:usuario/repo.git</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Clonar usando SSH en vez de HTTPS.</p></li>
+<li class="cmd" data-q="git remote set-url origin git@github.com:usuario/repo.git cambia un repo existente de https a ssh."><div class="cmd-line"><code>git remote set-url origin git@github.com:usuario/repo.git</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Cambia un repo existente de HTTPS a SSH.</p></li>
+<li class="cmd" data-q="git remote -v verifica que la url empiece por git@ y no por https://"><div class="cmd-line"><code>git remote -v</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Verifica que la URL empiece por git@ y no por https://</p></li></ul></div>
+<div class="block c-orange"><h3>Permisos y arreglos</h3><ul><li class="cmd" data-q="chmod 700 ~/.ssh la carpeta debe ser privada o ssh la rechaza."><div class="cmd-line"><code>chmod 700 ~/.ssh</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>La carpeta debe ser privada o SSH la rechaza.</p></li>
+<li class="cmd" data-q="chmod 600 ~/.ssh/id_ed25519 la llave privada solo la puede leer tu usuario."><div class="cmd-line"><code>chmod 600 ~/.ssh/id_ed25519</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>La llave privada solo la puede leer tu usuario.</p></li>
+<li class="cmd" data-q="chmod 644 ~/.ssh/id_ed25519.pub la llave pública sí puede ser legible."><div class="cmd-line"><code>chmod 644 ~/.ssh/id_ed25519.pub</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>La llave pública sí puede ser legible.</p></li>
+<li class="cmd" data-q="mv &quot;nombre-raro&quot; id_ed25519 si guardaste la llave con otro nombre, renómbrala así."><div class="cmd-line"><code>mv &quot;nombre-raro&quot; id_ed25519</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Si guardaste la llave con otro nombre, renómbrala así.</p></li>
+<li class="cmd" data-q="rm ~/.ssh/id_ed25519* borra el par de llaves para empezar de cero."><div class="cmd-line"><code>rm ~/.ssh/id_ed25519*</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Borra el par de llaves para empezar de cero.</p></li></ul></div>
+<div class="note c-magenta" data-q="error típico al generar la llave cuando aparece &lt;code&gt;enter file in which to save the key&lt;/code&gt; &lt;strong&gt;no escribas un comando ni un nombre&lt;/strong&gt;: presiona enter. si escribes algo, la llave se guarda con ese nombre y git nunca la encuentra."><h4>Error típico al generar la llave</h4><p>Cuando aparece <code>Enter file in which to save the key</code> <strong>NO escribas un comando ni un nombre</strong>: presiona ENTER. Si escribes algo, la llave se guarda con ese nombre y Git nunca la encuentra.</p></div>
+<div class="note c-green" data-q="ssh vs https https pide usuario y token en cada operación. ssh autentica con la llave y no vuelve a preguntar nada. para trabajo diario, ssh."><h4>SSH vs HTTPS</h4><p>HTTPS pide usuario y token en cada operación. SSH autentica con la llave y no vuelve a preguntar nada. Para trabajo diario, SSH.</p></div></div>
+</section>
+<section id="repos" class="sec c-magenta">
+<div class="sec-head"><span class="num">03</span><h2>Crear y clonar repositorios</h2></div>
+<div class="masonry"><div class="block c-magenta"><h3>Iniciar un repositorio local</h3><ul><li class="cmd" data-q="git init convierte la carpeta actual en repositorio: crea la carpeta oculta .git."><div class="cmd-line"><code>git init</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Convierte la carpeta actual en repositorio: crea la carpeta oculta .git.</p></li>
+<li class="cmd" data-q="git init nombre-proyecto crea la carpeta y la inicializa de una sola vez."><div class="cmd-line"><code>git init nombre-proyecto</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Crea la carpeta y la inicializa de una sola vez.</p></li>
+<li class="cmd" data-q="git init --bare repo.git repositorio sin archivos de trabajo, usado como servidor central."><div class="cmd-line"><code>git init --bare repo.git</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Repositorio sin archivos de trabajo, usado como servidor central.</p></li>
+<li class="cmd" data-q="git status confirma que estás dentro de un repo y ve su estado."><div class="cmd-line"><code>git status</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Confirma que estás dentro de un repo y ve su estado.</p></li>
+<li class="cmd" data-q="git rev-parse --show-toplevel muestra la raíz del repositorio en el que estás."><div class="cmd-line"><code>git rev-parse --show-toplevel</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Muestra la raíz del repositorio en el que estás.</p></li></ul></div>
+<div class="block c-cyan"><h3>Clonar un repositorio existente</h3><ul><li class="cmd" data-q="git clone https://github.com/user/repo.git copia el repo remoto completo con todo su historial."><div class="cmd-line"><code>git clone https://github.com/user/repo.git</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Copia el repo remoto completo con todo su historial.</p></li>
+<li class="cmd" data-q="git clone git@github.com:user/repo.git lo mismo pero vía ssh, sin pedir contraseña."><div class="cmd-line"><code>git clone git@github.com:user/repo.git</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Lo mismo pero vía SSH, sin pedir contraseña.</p></li>
+<li class="cmd" data-q="git clone url carpeta-destino clona dentro de una carpeta con el nombre que tú elijas."><div class="cmd-line"><code>git clone URL carpeta-destino</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Clona dentro de una carpeta con el nombre que tú elijas.</p></li>
+<li class="cmd" data-q="git clone --depth 1 url clon superficial: solo el último commit. mucho más rápido."><div class="cmd-line"><code>git clone --depth 1 URL</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Clon superficial: solo el último commit. Mucho más rápido.</p></li>
+<li class="cmd" data-q="git clone -b develop url clona directamente una rama específica."><div class="cmd-line"><code>git clone -b develop URL</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Clona directamente una rama específica.</p></li>
+<li class="cmd" data-q="git clone --recurse-submodules url clona también los submódulos del proyecto."><div class="cmd-line"><code>git clone --recurse-submodules URL</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Clona también los submódulos del proyecto.</p></li></ul></div>
+<div class="block c-green"><h3>Conectar con el remoto</h3><ul><li class="cmd" data-q="git remote add origin url vincula tu repo local con el remoto llamado &quot;origin&quot;."><div class="cmd-line"><code>git remote add origin URL</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Vincula tu repo local con el remoto llamado "origin".</p></li>
+<li class="cmd" data-q="git remote -v muestra las urls de fetch y de push configuradas."><div class="cmd-line"><code>git remote -v</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Muestra las URLs de fetch y de push configuradas.</p></li>
+<li class="cmd" data-q="git remote set-url origin url cambia la dirección del remoto."><div class="cmd-line"><code>git remote set-url origin URL</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Cambia la dirección del remoto.</p></li>
+<li class="cmd" data-q="git remote rename origin upstream renombra un remoto."><div class="cmd-line"><code>git remote rename origin upstream</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Renombra un remoto.</p></li>
+<li class="cmd" data-q="git remote remove origin elimina el vínculo con ese remoto."><div class="cmd-line"><code>git remote remove origin</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Elimina el vínculo con ese remoto.</p></li>
+<li class="cmd" data-q="git remote show origin detalle completo: ramas, seguimiento y estado."><div class="cmd-line"><code>git remote show origin</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Detalle completo: ramas, seguimiento y estado.</p></li></ul></div>
+<div class="block c-yellow"><h3>Primer push completo</h3><ul><li class="cmd" data-q="git add . prepara todos los archivos."><div class="cmd-line"><code>git add .</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Prepara todos los archivos.</p></li>
+<li class="cmd" data-q="git commit -m &quot;initial commit&quot; crea el primer commit."><div class="cmd-line"><code>git commit -m &quot;initial commit&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Crea el primer commit.</p></li>
+<li class="cmd" data-q="git branch -m main renombra la rama actual a main."><div class="cmd-line"><code>git branch -M main</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Renombra la rama actual a main.</p></li>
+<li class="cmd" data-q="git push -u origin main sube y deja main vinculada a origin/main."><div class="cmd-line"><code>git push -u origin main</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Sube y deja main vinculada a origin/main.</p></li></ul></div>
+<div class="note c-orange" data-q="fatal: not a git repository significa que en esa carpeta no existe &lt;code&gt;.git&lt;/code&gt; ni en ninguna carpeta superior. estás en la ruta equivocada, o nunca ejecutaste &lt;code&gt;git init&lt;/code&gt; / &lt;code&gt;git clone&lt;/code&gt; ahí."><h4>fatal: not a git repository</h4><p>Significa que en esa carpeta no existe <code>.git</code> ni en ninguna carpeta superior. Estás en la ruta equivocada, o nunca ejecutaste <code>git init</code> / <code>git clone</code> ahí.</p></div></div>
+</section>
+<section id="diario" class="sec c-yellow">
+<div class="sec-head"><span class="num">04</span><h2>Flujo diario</h2></div>
+<div class="masonry"><div class="block c-yellow"><h3>Preparar cambios (staging)</h3><ul><li class="cmd" data-q="git status qué cambió, qué está preparado y en qué rama estás."><div class="cmd-line"><code>git status</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Qué cambió, qué está preparado y en qué rama estás.</p></li>
+<li class="cmd" data-q="git status -s versión corta y compacta del estado."><div class="cmd-line"><code>git status -s</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Versión corta y compacta del estado.</p></li>
+<li class="cmd" data-q="git add archivo.txt prepara un archivo concreto."><div class="cmd-line"><code>git add archivo.txt</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Prepara un archivo concreto.</p></li>
+<li class="cmd" data-q="git add . prepara todo desde la carpeta actual hacia abajo."><div class="cmd-line"><code>git add .</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Prepara todo desde la carpeta actual hacia abajo.</p></li>
+<li class="cmd" data-q="git add -a prepara todo el repositorio, incluidos los borrados."><div class="cmd-line"><code>git add -A</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Prepara todo el repositorio, incluidos los borrados.</p></li>
+<li class="cmd" data-q="git add *.js prepara por patrón: todos los archivos .js"><div class="cmd-line"><code>git add *.js</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Prepara por patrón: todos los archivos .js</p></li>
+<li class="cmd" data-q="git add -p interactivo: elige trozo por trozo qué incluir."><div class="cmd-line"><code>git add -p</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Interactivo: elige trozo por trozo qué incluir.</p></li>
+<li class="cmd" data-q="git reset archivo.txt saca un archivo del área de preparación."><div class="cmd-line"><code>git reset archivo.txt</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Saca un archivo del área de preparación.</p></li></ul></div>
+<div class="block c-green"><h3>Confirmar (commit)</h3><ul><li class="cmd" data-q="git commit -m &quot;mensaje claro&quot; guarda los cambios preparados en el historial."><div class="cmd-line"><code>git commit -m &quot;mensaje claro&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Guarda los cambios preparados en el historial.</p></li>
+<li class="cmd" data-q="git commit -am &quot;mensaje&quot; agrega y confirma en un paso, solo archivos ya rastreados."><div class="cmd-line"><code>git commit -am &quot;mensaje&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Agrega y confirma en un paso, solo archivos ya rastreados.</p></li>
+<li class="cmd" data-q="git commit --amend -m &quot;nuevo msg&quot; corrige el último commit o su mensaje."><div class="cmd-line"><code>git commit --amend -m &quot;nuevo msg&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Corrige el último commit o su mensaje.</p></li>
+<li class="cmd" data-q="git commit --amend --no-edit agrega cambios al último commit sin tocar el mensaje."><div class="cmd-line"><code>git commit --amend --no-edit</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Agrega cambios al último commit sin tocar el mensaje.</p></li>
+<li class="cmd" data-q="git commit --allow-empty -m &quot;trigger&quot; commit vacío, útil para disparar un pipeline."><div class="cmd-line"><code>git commit --allow-empty -m &quot;trigger&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Commit vacío, útil para disparar un pipeline.</p></li></ul></div>
+<div class="block c-cyan"><h3>Ver diferencias</h3><ul><li class="cmd" data-q="git diff cambios que aún no están preparados."><div class="cmd-line"><code>git diff</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Cambios que aún NO están preparados.</p></li>
+<li class="cmd" data-q="git diff --staged cambios ya preparados, listos para el commit."><div class="cmd-line"><code>git diff --staged</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Cambios ya preparados, listos para el commit.</p></li>
+<li class="cmd" data-q="git diff main..develop diferencias entre dos ramas."><div class="cmd-line"><code>git diff main..develop</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Diferencias entre dos ramas.</p></li>
+<li class="cmd" data-q="git diff --stat resumen: archivos tocados y líneas añadidas o borradas."><div class="cmd-line"><code>git diff --stat</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Resumen: archivos tocados y líneas añadidas o borradas.</p></li>
+<li class="cmd" data-q="git diff head~1 head qué cambió en el último commit."><div class="cmd-line"><code>git diff HEAD~1 HEAD</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Qué cambió en el último commit.</p></li></ul></div>
+<div class="block c-purple"><h3>Historial</h3><ul><li class="cmd" data-q="git log historial completo de commits."><div class="cmd-line"><code>git log</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Historial completo de commits.</p></li>
+<li class="cmd" data-q="git log --oneline --graph --all el mejor: árbol visual y compacto de todas las ramas."><div class="cmd-line"><code>git log --oneline --graph --all</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>El mejor: árbol visual y compacto de todas las ramas.</p></li>
+<li class="cmd" data-q="git log -5 solo los últimos cinco commits."><div class="cmd-line"><code>git log -5</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Solo los últimos cinco commits.</p></li>
+<li class="cmd" data-q="git log -p archivo.txt historial con los cambios concretos de un archivo."><div class="cmd-line"><code>git log -p archivo.txt</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Historial con los cambios concretos de un archivo.</p></li>
+<li class="cmd" data-q="git log --since=&quot;2 weeks ago&quot; filtra el historial por fecha."><div class="cmd-line"><code>git log --since=&quot;2 weeks ago&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Filtra el historial por fecha.</p></li>
+<li class="cmd" data-q="git show head detalle completo del último commit."><div class="cmd-line"><code>git show HEAD</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Detalle completo del último commit.</p></li>
+<li class="cmd" data-q="git blame archivo.txt quién escribió cada línea y en qué commit."><div class="cmd-line"><code>git blame archivo.txt</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Quién escribió cada línea y en qué commit.</p></li>
+<li class="cmd" data-q="git shortlog -sn ranking de commits por autor."><div class="cmd-line"><code>git shortlog -sn</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Ranking de commits por autor.</p></li>
+<li class="cmd" data-q="git reflog todo lo que hiciste, incluso lo &quot;perdido&quot;. tu red de seguridad."><div class="cmd-line"><code>git reflog</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Todo lo que hiciste, incluso lo "perdido". Tu red de seguridad.</p></li></ul></div></div>
+</section>
+<section id="sync" class="sec c-orange">
+<div class="sec-head"><span class="num">05</span><h2>Sincronizar con el remoto</h2></div>
+<div class="masonry"><div class="block c-orange"><h3>Subir cambios · push</h3><ul><li class="cmd" data-q="git push sube la rama actual a su remoto vinculado."><div class="cmd-line"><code>git push</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Sube la rama actual a su remoto vinculado.</p></li>
+<li class="cmd" data-q="git push -u origin main primera vez: sube y crea el vínculo de seguimiento."><div class="cmd-line"><code>git push -u origin main</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Primera vez: sube y crea el vínculo de seguimiento.</p></li>
+<li class="cmd" data-q="git push origin nombre-rama sube una rama concreta."><div class="cmd-line"><code>git push origin nombre-rama</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Sube una rama concreta.</p></li>
+<li class="cmd" data-q="git push --all origin sube todas las ramas locales."><div class="cmd-line"><code>git push --all origin</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Sube todas las ramas locales.</p></li>
+<li class="cmd" data-q="git push origin --delete rama borra una rama en el remoto."><div class="cmd-line"><code>git push origin --delete rama</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Borra una rama en el remoto.</p></li>
+<li class="cmd" data-q="git push --tags sube todas las etiquetas."><div class="cmd-line"><code>git push --tags</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Sube todas las etiquetas.</p></li>
+<li class="cmd" data-q="git push --force-with-lease forzar de forma segura: aborta si alguien más subió algo."><div class="cmd-line"><code>git push --force-with-lease</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Forzar de forma segura: aborta si alguien más subió algo.</p></li>
+<li class="cmd" data-q="git push --dry-run simulacro: muestra qué subiría sin subir nada."><div class="cmd-line"><code>git push --dry-run</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Simulacro: muestra qué subiría sin subir nada.</p></li></ul></div>
+<div class="block c-cyan"><h3>Traer cambios · fetch</h3><ul><li class="cmd" data-q="git fetch origin descarga los cambios del remoto sin tocar tu trabajo."><div class="cmd-line"><code>git fetch origin</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Descarga los cambios del remoto SIN tocar tu trabajo.</p></li>
+<li class="cmd" data-q="git fetch --all descarga desde todos los remotos configurados."><div class="cmd-line"><code>git fetch --all</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Descarga desde todos los remotos configurados.</p></li>
+<li class="cmd" data-q="git fetch --prune además borra referencias a ramas que ya no existen."><div class="cmd-line"><code>git fetch --prune</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Además borra referencias a ramas que ya no existen.</p></li>
+<li class="cmd" data-q="git log main..origin/main ve qué commits nuevos trajo el fetch antes de integrarlos."><div class="cmd-line"><code>git log main..origin/main</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Ve qué commits nuevos trajo el fetch antes de integrarlos.</p></li>
+<li class="cmd" data-q="git diff main origin/main compara tu rama con la del remoto."><div class="cmd-line"><code>git diff main origin/main</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Compara tu rama con la del remoto.</p></li></ul></div>
+<div class="block c-green"><h3>Traer e integrar · pull</h3><ul><li class="cmd" data-q="git pull equivale a git fetch + git merge de un solo golpe."><div class="cmd-line"><code>git pull</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Equivale a git fetch + git merge de un solo golpe.</p></li>
+<li class="cmd" data-q="git pull origin main trae e integra una rama concreta."><div class="cmd-line"><code>git pull origin main</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Trae e integra una rama concreta.</p></li>
+<li class="cmd" data-q="git pull --rebase integra reescribiendo encima: historial lineal, sin commit de merge."><div class="cmd-line"><code>git pull --rebase</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Integra reescribiendo encima: historial lineal, sin commit de merge.</p></li>
+<li class="cmd" data-q="git pull --ff-only solo avanza si no hay divergencia; si la hay, aborta."><div class="cmd-line"><code>git pull --ff-only</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Solo avanza si no hay divergencia; si la hay, aborta.</p></li></ul></div>
+<div class="block c-magenta"><h3>Cuando el push es rechazado</h3><ul><li class="cmd" data-q="git pull --rebase origin main la solución normal a &quot;non-fast-forward&quot;: integra y reintenta el push."><div class="cmd-line"><code>git pull --rebase origin main</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>La solución normal a "non-fast-forward": integra y reintenta el push.</p></li>
+<li class="cmd" data-q="git pull origin main --allow-unrelated-histories cuando el repo remoto ya tenía un readme y el local su propio commit inicial."><div class="cmd-line"><code>git pull origin main --allow-unrelated-histories</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Cuando el repo remoto ya tenía un README y el local su propio commit inicial.</p></li>
+<li class="cmd" data-q="git push -f origin main último recurso: sobrescribe el remoto. puede borrar trabajo ajeno."><div class="cmd-line"><code>git push -f origin main</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Último recurso: sobrescribe el remoto. Puede borrar trabajo ajeno.</p></li></ul></div>
+<div class="note c-cyan" data-q="fetch vs pull &lt;strong&gt;fetch&lt;/strong&gt; = mirar sin comprometerse: descarga y tú decides qué hacer. &lt;strong&gt;pull&lt;/strong&gt; = fetch + merge automático. si no estás seguro usa fetch, revisa con &lt;code&gt;git log&lt;/code&gt; y luego haz merge."><h4>fetch vs pull</h4><p><strong>fetch</strong> = mirar sin comprometerse: descarga y tú decides qué hacer. <strong>pull</strong> = fetch + merge automático. Si no estás seguro usa fetch, revisa con <code>git log</code> y luego haz merge.</p></div>
+<div class="note c-yellow" data-q="rutina segura antes de empezar a trabajar: &lt;code&gt;git pull&lt;/code&gt;. antes de subir: &lt;code&gt;git pull --rebase&lt;/code&gt; y después &lt;code&gt;git push&lt;/code&gt;. así casi nunca tendrás conflictos feos."><h4>Rutina segura</h4><p>Antes de empezar a trabajar: <code>git pull</code>. Antes de subir: <code>git pull --rebase</code> y después <code>git push</code>. Así casi nunca tendrás conflictos feos.</p></div></div>
+</section>
+<section id="ramas" class="sec c-purple">
+<div class="sec-head"><span class="num">06</span><h2>Ramas, merge y rebase</h2></div>
+<div class="masonry"><div class="block c-purple"><h3>Gestionar ramas</h3><ul><li class="cmd" data-q="git branch lista las ramas locales; la actual lleva asterisco."><div class="cmd-line"><code>git branch</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Lista las ramas locales; la actual lleva asterisco.</p></li>
+<li class="cmd" data-q="git branch -a lista las ramas locales y las remotas."><div class="cmd-line"><code>git branch -a</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Lista las ramas locales y las remotas.</p></li>
+<li class="cmd" data-q="git branch -v muestra el último commit de cada rama."><div class="cmd-line"><code>git branch -v</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Muestra el último commit de cada rama.</p></li>
+<li class="cmd" data-q="git branch nueva-rama crea una rama sin cambiarte a ella."><div class="cmd-line"><code>git branch nueva-rama</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Crea una rama sin cambiarte a ella.</p></li>
+<li class="cmd" data-q="git switch -c nueva-rama crea la rama y se cambia. forma moderna recomendada."><div class="cmd-line"><code>git switch -c nueva-rama</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Crea la rama y se cambia. Forma moderna recomendada.</p></li>
+<li class="cmd" data-q="git checkout -b nueva-rama lo mismo con la sintaxis clásica."><div class="cmd-line"><code>git checkout -b nueva-rama</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Lo mismo con la sintaxis clásica.</p></li>
+<li class="cmd" data-q="git switch main cambia a una rama que ya existe."><div class="cmd-line"><code>git switch main</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Cambia a una rama que ya existe.</p></li>
+<li class="cmd" data-q="git switch - vuelve a la rama anterior."><div class="cmd-line"><code>git switch -</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Vuelve a la rama anterior.</p></li>
+<li class="cmd" data-q="git branch -m nuevo-nombre renombra la rama actual."><div class="cmd-line"><code>git branch -m nuevo-nombre</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Renombra la rama actual.</p></li>
+<li class="cmd" data-q="git branch -d rama borra la rama si ya fue integrada."><div class="cmd-line"><code>git branch -d rama</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Borra la rama si ya fue integrada.</p></li>
+<li class="cmd" data-q="git branch -d rama borra a la fuerza aunque no esté integrada."><div class="cmd-line"><code>git branch -D rama</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Borra a la fuerza aunque no esté integrada.</p></li>
+<li class="cmd" data-q="git branch --merged lista las ramas ya integradas: las que puedes borrar."><div class="cmd-line"><code>git branch --merged</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Lista las ramas ya integradas: las que puedes borrar.</p></li></ul></div>
+<div class="block c-green"><h3>Merge</h3><ul><li class="cmd" data-q="git merge develop integra develop dentro de la rama en la que estás parado."><div class="cmd-line"><code>git merge develop</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Integra develop dentro de la rama en la que estás parado.</p></li>
+<li class="cmd" data-q="git merge --no-ff develop fuerza un commit de merge para conservar la historia de la rama."><div class="cmd-line"><code>git merge --no-ff develop</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Fuerza un commit de merge para conservar la historia de la rama.</p></li>
+<li class="cmd" data-q="git merge --squash develop aplana todos los commits de la rama en uno solo."><div class="cmd-line"><code>git merge --squash develop</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Aplana todos los commits de la rama en uno solo.</p></li>
+<li class="cmd" data-q="git merge --abort cancela el merge y deja todo como estaba."><div class="cmd-line"><code>git merge --abort</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Cancela el merge y deja todo como estaba.</p></li></ul></div>
+<div class="block c-orange"><h3>Rebase</h3><ul><li class="cmd" data-q="git rebase main reaplica tus commits encima de main: historial lineal."><div class="cmd-line"><code>git rebase main</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Reaplica tus commits encima de main: historial lineal.</p></li>
+<li class="cmd" data-q="git rebase -i head~3 interactivo: reordena, junta o reescribe los últimos tres commits."><div class="cmd-line"><code>git rebase -i HEAD~3</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Interactivo: reordena, junta o reescribe los últimos tres commits.</p></li>
+<li class="cmd" data-q="git rebase --continue continúa tras resolver un conflicto."><div class="cmd-line"><code>git rebase --continue</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Continúa tras resolver un conflicto.</p></li>
+<li class="cmd" data-q="git rebase --skip salta el commit conflictivo actual."><div class="cmd-line"><code>git rebase --skip</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Salta el commit conflictivo actual.</p></li>
+<li class="cmd" data-q="git rebase --abort cancela el rebase por completo."><div class="cmd-line"><code>git rebase --abort</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Cancela el rebase por completo.</p></li></ul></div>
+<div class="block c-magenta"><h3>Conflictos</h3><ul><li class="cmd" data-q="git status lista los archivos en conflicto."><div class="cmd-line"><code>git status</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Lista los archivos en conflicto.</p></li>
+<li class="cmd" data-q="git add archivo-resuelto marca el conflicto como resuelto tras editarlo."><div class="cmd-line"><code>git add archivo-resuelto</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Marca el conflicto como resuelto tras editarlo.</p></li>
+<li class="cmd" data-q="git checkout --ours archivo se queda con tu versión."><div class="cmd-line"><code>git checkout --ours archivo</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Se queda con tu versión.</p></li>
+<li class="cmd" data-q="git checkout --theirs archivo se queda con la versión que llega."><div class="cmd-line"><code>git checkout --theirs archivo</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Se queda con la versión que llega.</p></li></ul></div>
+<div class="note c-yellow" data-q="regla de oro nunca hagas rebase de commits que ya subiste y otros descargaron: reescribe la historia y rompe el repositorio de tus compañeros."><h4>Regla de oro</h4><p>Nunca hagas rebase de commits que ya subiste y otros descargaron: reescribe la historia y rompe el repositorio de tus compañeros.</p></div></div>
+</section>
+<section id="deshacer" class="sec c-cyan">
+<div class="sec-head"><span class="num">07</span><h2>Deshacer cambios</h2></div>
+<div class="masonry"><div class="block c-cyan"><h3>Descartar cambios locales</h3><ul><li class="cmd" data-q="git restore archivo.txt descarta los cambios no guardados de un archivo."><div class="cmd-line"><code>git restore archivo.txt</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Descarta los cambios no guardados de un archivo.</p></li>
+<li class="cmd" data-q="git restore . descarta todos los cambios sin preparar. no hay vuelta atrás."><div class="cmd-line"><code>git restore .</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Descarta TODOS los cambios sin preparar. No hay vuelta atrás.</p></li>
+<li class="cmd" data-q="git restore --staged archivo saca del área de preparación sin perder el cambio."><div class="cmd-line"><code>git restore --staged archivo</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Saca del área de preparación sin perder el cambio.</p></li>
+<li class="cmd" data-q="git restore --source head~2 archivo recupera la versión de un archivo de dos commits atrás."><div class="cmd-line"><code>git restore --source HEAD~2 archivo</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Recupera la versión de un archivo de dos commits atrás.</p></li>
+<li class="cmd" data-q="git checkout -- archivo.txt equivalente clásico de git restore."><div class="cmd-line"><code>git checkout -- archivo.txt</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Equivalente clásico de git restore.</p></li>
+<li class="cmd" data-q="git clean -n simulacro: muestra qué archivos sin rastrear borraría."><div class="cmd-line"><code>git clean -n</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Simulacro: muestra qué archivos sin rastrear borraría.</p></li>
+<li class="cmd" data-q="git clean -fd borra de verdad archivos y carpetas sin rastrear."><div class="cmd-line"><code>git clean -fd</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Borra de verdad archivos y carpetas sin rastrear.</p></li></ul></div>
+<div class="block c-orange"><h3>Reset · mueve el HEAD</h3><ul><li class="cmd" data-q="git reset --soft head~1 deshace el commit pero conserva todo preparado."><div class="cmd-line"><code>git reset --soft HEAD~1</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Deshace el commit pero conserva todo preparado.</p></li>
+<li class="cmd" data-q="git reset --mixed head~1 deshace commit y staging; conserva los archivos."><div class="cmd-line"><code>git reset --mixed HEAD~1</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Deshace commit y staging; conserva los archivos.</p></li>
+<li class="cmd" data-q="git reset --hard head~1 borra el commit y los cambios. destructivo."><div class="cmd-line"><code>git reset --hard HEAD~1</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Borra el commit y los cambios. Destructivo.</p></li>
+<li class="cmd" data-q="git reset --hard origin/main deja tu rama exactamente igual a la del remoto."><div class="cmd-line"><code>git reset --hard origin/main</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Deja tu rama exactamente igual a la del remoto.</p></li>
+<li class="cmd" data-q="git reset head~3 --soft junta los últimos tres commits para rehacerlos en uno."><div class="cmd-line"><code>git reset HEAD~3 --soft</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Junta los últimos tres commits para rehacerlos en uno.</p></li></ul></div>
+<div class="block c-green"><h3>Revert · seguro para equipos</h3><ul><li class="cmd" data-q="git revert head crea un commit nuevo que anula el último. no reescribe la historia."><div class="cmd-line"><code>git revert HEAD</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Crea un commit nuevo que anula el último. No reescribe la historia.</p></li>
+<li class="cmd" data-q="git revert abc1234 anula un commit concreto por su hash."><div class="cmd-line"><code>git revert abc1234</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Anula un commit concreto por su hash.</p></li>
+<li class="cmd" data-q="git revert --no-commit head~3..head anula un rango y lo deja todo preparado en un solo commit."><div class="cmd-line"><code>git revert --no-commit HEAD~3..HEAD</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Anula un rango y lo deja todo preparado en un solo commit.</p></li>
+<li class="cmd" data-q="git revert -m 1 &lt;hash-merge&gt; revierte un commit de merge."><div class="cmd-line"><code>git revert -m 1 &lt;hash-merge&gt;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Revierte un commit de merge.</p></li></ul></div>
+<div class="block c-magenta"><h3>Stash · guardar para después</h3><ul><li class="cmd" data-q="git stash guarda los cambios en curso y deja la carpeta limpia."><div class="cmd-line"><code>git stash</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Guarda los cambios en curso y deja la carpeta limpia.</p></li>
+<li class="cmd" data-q="git stash push -m &quot;wip login&quot; guarda con un nombre para identificarlo después."><div class="cmd-line"><code>git stash push -m &quot;wip login&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Guarda con un nombre para identificarlo después.</p></li>
+<li class="cmd" data-q="git stash -u guarda también los archivos sin rastrear."><div class="cmd-line"><code>git stash -u</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Guarda también los archivos sin rastrear.</p></li>
+<li class="cmd" data-q="git stash list lista todo lo guardado."><div class="cmd-line"><code>git stash list</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Lista todo lo guardado.</p></li>
+<li class="cmd" data-q="git stash show -p stash@{0} ve el contenido de un stash antes de aplicarlo."><div class="cmd-line"><code>git stash show -p stash@{0}</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Ve el contenido de un stash antes de aplicarlo.</p></li>
+<li class="cmd" data-q="git stash pop recupera el último y lo elimina de la pila."><div class="cmd-line"><code>git stash pop</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Recupera el último y lo elimina de la pila.</p></li>
+<li class="cmd" data-q="git stash apply stash@{1} recupera uno concreto sin borrarlo de la pila."><div class="cmd-line"><code>git stash apply stash@{1}</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Recupera uno concreto sin borrarlo de la pila.</p></li>
+<li class="cmd" data-q="git stash drop stash@{0} elimina una entrada del stash."><div class="cmd-line"><code>git stash drop stash@{0}</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Elimina una entrada del stash.</p></li>
+<li class="cmd" data-q="git stash clear vacía todo el stash."><div class="cmd-line"><code>git stash clear</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Vacía todo el stash.</p></li></ul></div>
+<div class="note c-purple" data-q="¿lo perdiste? git reflog &lt;code&gt;reflog&lt;/code&gt; guarda cada movimiento del head. busca el hash del punto al que quieres volver y ejecuta &lt;code&gt;git reset --hard &amp;lt;hash&amp;gt;&lt;/code&gt;."><h4>¿Lo perdiste? git reflog</h4><p><code>reflog</code> guarda cada movimiento del HEAD. Busca el hash del punto al que quieres volver y ejecuta <code>git reset --hard &lt;hash&gt;</code>.</p></div></div>
+</section>
+<section id="tags" class="sec c-green">
+<div class="sec-head"><span class="num">08</span><h2>Tags, alias y atajos</h2></div>
+<div class="masonry"><div class="block c-green"><h3>Tags / versiones</h3><ul><li class="cmd" data-q="git tag lista las etiquetas del repositorio."><div class="cmd-line"><code>git tag</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Lista las etiquetas del repositorio.</p></li>
+<li class="cmd" data-q="git tag v1.0.0 etiqueta ligera en el commit actual."><div class="cmd-line"><code>git tag v1.0.0</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Etiqueta ligera en el commit actual.</p></li>
+<li class="cmd" data-q="git tag -a v1.0.0 -m &quot;release 1.0&quot; etiqueta anotada con autor, fecha y mensaje."><div class="cmd-line"><code>git tag -a v1.0.0 -m &quot;Release 1.0&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Etiqueta anotada con autor, fecha y mensaje.</p></li>
+<li class="cmd" data-q="git tag -a v1.0 abc1234 etiqueta un commit antiguo por su hash."><div class="cmd-line"><code>git tag -a v1.0 abc1234</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Etiqueta un commit antiguo por su hash.</p></li>
+<li class="cmd" data-q="git show v1.0.0 detalle de la etiqueta y del commit al que apunta."><div class="cmd-line"><code>git show v1.0.0</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Detalle de la etiqueta y del commit al que apunta.</p></li>
+<li class="cmd" data-q="git push origin v1.0.0 sube una etiqueta concreta al remoto."><div class="cmd-line"><code>git push origin v1.0.0</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Sube una etiqueta concreta al remoto.</p></li>
+<li class="cmd" data-q="git push origin --tags sube todas las etiquetas."><div class="cmd-line"><code>git push origin --tags</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Sube todas las etiquetas.</p></li>
+<li class="cmd" data-q="git tag -d v1.0.0 borra una etiqueta local."><div class="cmd-line"><code>git tag -d v1.0.0</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Borra una etiqueta local.</p></li>
+<li class="cmd" data-q="git push origin --delete v1.0.0 borra la etiqueta también en el remoto."><div class="cmd-line"><code>git push origin --delete v1.0.0</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Borra la etiqueta también en el remoto.</p></li></ul></div>
+<div class="block c-purple"><h3>Buscar en el historial</h3><ul><li class="cmd" data-q="git grep &quot;texto&quot; busca una cadena en todos los archivos rastreados."><div class="cmd-line"><code>git grep &quot;texto&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Busca una cadena en todos los archivos rastreados.</p></li>
+<li class="cmd" data-q="git log --grep=&quot;login&quot; busca commits por su mensaje."><div class="cmd-line"><code>git log --grep=&quot;login&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Busca commits por su mensaje.</p></li>
+<li class="cmd" data-q="git log --author=&quot;bran&quot; filtra los commits por autor."><div class="cmd-line"><code>git log --author=&quot;Bran&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Filtra los commits por autor.</p></li>
+<li class="cmd" data-q="git log -s &quot;funcion()&quot; encuentra el commit donde apareció o desapareció un texto."><div class="cmd-line"><code>git log -S &quot;funcion()&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Encuentra el commit donde apareció o desapareció un texto.</p></li>
+<li class="cmd" data-q="git bisect start búsqueda binaria para hallar el commit que rompió algo."><div class="cmd-line"><code>git bisect start</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Búsqueda binaria para hallar el commit que rompió algo.</p></li></ul></div>
+<div class="block c-cyan"><h3>Alias · escribe menos</h3><ul><li class="cmd" data-q="git config --global alias.st status ahora &quot;git st&quot; equivale a git status."><div class="cmd-line"><code>git config --global alias.st status</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Ahora "git st" equivale a git status.</p></li>
+<li class="cmd" data-q="git config --global alias.co checkout &quot;git co&quot; equivale a git checkout."><div class="cmd-line"><code>git config --global alias.co checkout</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>"git co" equivale a git checkout.</p></li>
+<li class="cmd" data-q="git config --global alias.br branch &quot;git br&quot; equivale a git branch."><div class="cmd-line"><code>git config --global alias.br branch</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>"git br" equivale a git branch.</p></li>
+<li class="cmd" data-q="git config --global alias.cm &quot;commit -m&quot; &quot;git cm&quot; equivale a git commit -m."><div class="cmd-line"><code>git config --global alias.cm &quot;commit -m&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>"git cm" equivale a git commit -m.</p></li>
+<li class="cmd" data-q="git config --global alias.lg &quot;log --oneline --graph --all&quot; el alias estrella: &quot;git lg&quot; dibuja el árbol completo."><div class="cmd-line"><code>git config --global alias.lg &quot;log --oneline --graph --all&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>El alias estrella: "git lg" dibuja el árbol completo.</p></li>
+<li class="cmd" data-q="git config --global alias.last &quot;log -1 head&quot; &quot;git last&quot; muestra el último commit."><div class="cmd-line"><code>git config --global alias.last &quot;log -1 HEAD&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>"git last" muestra el último commit.</p></li>
+<li class="cmd" data-q="git config --global alias.unstage &quot;reset head --&quot; &quot;git unstage archivo&quot; lo saca del staging."><div class="cmd-line"><code>git config --global alias.unstage &quot;reset HEAD --&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>"git unstage archivo" lo saca del staging.</p></li>
+<li class="cmd" data-q="git config --global alias.amend &quot;commit --amend --no-edit&quot; &quot;git amend&quot; agrega al último commit sin abrir el editor."><div class="cmd-line"><code>git config --global alias.amend &quot;commit --amend --no-edit&quot;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>"git amend" agrega al último commit sin abrir el editor.</p></li></ul></div>
+<div class="block c-yellow"><h3>Atajos de referencia</h3><ul><li class="cmd" data-q="head el commit en el que estás parado ahora mismo."><div class="cmd-line"><code>HEAD</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>El commit en el que estás parado ahora mismo.</p></li>
+<li class="cmd" data-q="head~1  /  head~3 uno o tres commits hacia atrás."><div class="cmd-line"><code>HEAD~1  /  HEAD~3</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Uno o tres commits hacia atrás.</p></li>
+<li class="cmd" data-q="head^ el primer padre del commit actual."><div class="cmd-line"><code>HEAD^</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>El primer padre del commit actual.</p></li>
+<li class="cmd" data-q="origin/main la rama main tal y como está en el remoto."><div class="cmd-line"><code>origin/main</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>La rama main tal y como está en el remoto.</p></li>
+<li class="cmd" data-q="git checkout - vuelve a la rama anterior, igual que &quot;cd -&quot;."><div class="cmd-line"><code>git checkout -</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Vuelve a la rama anterior, igual que "cd -".</p></li>
+<li class="cmd" data-q=".  /  -a  /  -p alcances de git add: carpeta actual, todo, interactivo."><div class="cmd-line"><code>.  /  -A  /  -p</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Alcances de git add: carpeta actual, todo, interactivo.</p></li></ul></div></div>
+</section>
+<section id="errores" class="sec c-magenta">
+<div class="sec-head"><span class="num">09</span><h2>Errores comunes</h2></div>
+<div class="masonry"><div class="block c-cyan"><h3>Comandos de rescate</h3><ul><li class="cmd" data-q="git reflog ve todo lo que hiciste; desde aquí se recupera casi cualquier cosa."><div class="cmd-line"><code>git reflog</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Ve todo lo que hiciste; desde aquí se recupera casi cualquier cosa.</p></li>
+<li class="cmd" data-q="git reset --hard &lt;hash&gt; vuelve exactamente a ese punto del historial."><div class="cmd-line"><code>git reset --hard &lt;hash&gt;</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Vuelve exactamente a ese punto del historial.</p></li>
+<li class="cmd" data-q="git merge --abort cancela un merge conflictivo."><div class="cmd-line"><code>git merge --abort</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Cancela un merge conflictivo.</p></li>
+<li class="cmd" data-q="git rebase --abort cancela un rebase a medias."><div class="cmd-line"><code>git rebase --abort</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Cancela un rebase a medias.</p></li>
+<li class="cmd" data-q="git checkout &lt;hash&gt; -- archivo recupera un solo archivo desde un commit antiguo."><div class="cmd-line"><code>git checkout &lt;hash&gt; -- archivo</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Recupera un solo archivo desde un commit antiguo.</p></li></ul></div>
+<div class="block c-green"><h3>Higiene del repositorio</h3><ul><li class="cmd" data-q="git fsck verifica la integridad de la base de datos de objetos."><div class="cmd-line"><code>git fsck</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Verifica la integridad de la base de datos de objetos.</p></li>
+<li class="cmd" data-q="git gc --prune=now compacta y limpia objetos sueltos."><div class="cmd-line"><code>git gc --prune=now</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Compacta y limpia objetos sueltos.</p></li>
+<li class="cmd" data-q="git count-objects -vh cuánto pesa realmente tu repositorio."><div class="cmd-line"><code>git count-objects -vH</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Cuánto pesa realmente tu repositorio.</p></li>
+<li class="cmd" data-q="git rm --cached archivo deja de rastrear un archivo sin borrarlo del disco."><div class="cmd-line"><code>git rm --cached archivo</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Deja de rastrear un archivo sin borrarlo del disco.</p></li>
+<li class="cmd" data-q="git mv viejo.txt nuevo.txt renombra un archivo y registra el cambio en git."><div class="cmd-line"><code>git mv viejo.txt nuevo.txt</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Renombra un archivo y registra el cambio en Git.</p></li></ul></div>
+<div class="block c-purple"><h3>Diagnóstico rápido</h3><ul><li class="cmd" data-q="git status primer comando siempre: te dice dónde estás y qué pasa."><div class="cmd-line"><code>git status</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Primer comando siempre: te dice dónde estás y qué pasa.</p></li>
+<li class="cmd" data-q="git remote -v confirma a qué remoto apuntas realmente."><div class="cmd-line"><code>git remote -v</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Confirma a qué remoto apuntas realmente.</p></li>
+<li class="cmd" data-q="git branch -vv muestra cada rama y la rama remota que sigue."><div class="cmd-line"><code>git branch -vv</code><button class="copy" type="button" aria-label="Copiar">copiar</button></div><p>Muestra cada rama y la rama remota que sigue.</p></li></ul></div>
+<div class="note c-magenta" data-q="fatal: not a git repository no hay carpeta &lt;code&gt;.git&lt;/code&gt; en esa ruta ni en las superiores. comprueba dónde estás y ejecuta &lt;code&gt;git init&lt;/code&gt; o &lt;code&gt;git clone&lt;/code&gt;."><h4>fatal: not a git repository</h4><p>No hay carpeta <code>.git</code> en esa ruta ni en las superiores. Comprueba dónde estás y ejecuta <code>git init</code> o <code>git clone</code>.</p></div>
+<div class="note c-orange" data-q="rejected · non-fast-forward el remoto tiene commits que tú no tienes. solución: &lt;code&gt;git pull --rebase&lt;/code&gt; y después &lt;code&gt;git push&lt;/code&gt;."><h4>rejected · non-fast-forward</h4><p>El remoto tiene commits que tú no tienes. Solución: <code>git pull --rebase</code> y después <code>git push</code>.</p></div>
+<div class="note c-yellow" data-q="refusing to merge unrelated histories dos historiales independientes. usa &lt;code&gt;git pull origin main --allow-unrelated-histories&lt;/code&gt;."><h4>refusing to merge unrelated histories</h4><p>Dos historiales independientes. Usa <code>git pull origin main --allow-unrelated-histories</code>.</p></div>
+<div class="note c-green" data-q="permission denied (publickey) ssh no encuentra o no acepta tu llave. revisa &lt;code&gt;ssh-add -l&lt;/code&gt;, los permisos con &lt;code&gt;chmod 600&lt;/code&gt; y que la llave pública esté cargada en github."><h4>Permission denied (publickey)</h4><p>SSH no encuentra o no acepta tu llave. Revisa <code>ssh-add -l</code>, los permisos con <code>chmod 600</code> y que la llave pública esté cargada en GitHub.</p></div>
+<div class="note c-cyan" data-q="src refspec main does not match any todavía no existe ningún commit. haz &lt;code&gt;git add .&lt;/code&gt; y &lt;code&gt;git commit -m &quot;init&quot;&lt;/code&gt; antes del push."><h4>src refspec main does not match any</h4><p>Todavía no existe ningún commit. Haz <code>git add .</code> y <code>git commit -m "init"</code> antes del push.</p></div>
+<div class="note c-purple" data-q="detached head estás parado en un commit suelto y no en una rama. sal con &lt;code&gt;git switch main&lt;/code&gt;, o guarda el trabajo con &lt;code&gt;git switch -c rama-nueva&lt;/code&gt;."><h4>detached HEAD</h4><p>Estás parado en un commit suelto y no en una rama. Sal con <code>git switch main</code>, o guarda el trabajo con <code>git switch -c rama-nueva</code>.</p></div>
+<div class="note c-cyan" data-q="your local changes would be overwritten tienes cambios sin guardar que chocan con lo que llega. haz &lt;code&gt;git stash&lt;/code&gt;, luego &lt;code&gt;git pull&lt;/code&gt; y después &lt;code&gt;git stash pop&lt;/code&gt;."><h4>Your local changes would be overwritten</h4><p>Tienes cambios sin guardar que chocan con lo que llega. Haz <code>git stash</code>, luego <code>git pull</code> y después <code>git stash pop</code>.</p></div>
+<div class="note c-green" data-q="please tell me who you are falta configurar la identidad. ejecuta &lt;code&gt;git config --global user.name&lt;/code&gt; y &lt;code&gt;user.email&lt;/code&gt;."><h4>Please tell me who you are</h4><p>Falta configurar la identidad. Ejecuta <code>git config --global user.name</code> y <code>user.email</code>.</p></div></div>
+</section>
+
+<section id="mapa" class="sec c-yellow">
+  <div class="sec-head"><span class="num">10</span><h2>Mapa mental del flujo Git</h2></div>
+  <div class="mind">
+    <div class="mcol"><div class="mnode c-cyan"><h4>CONFIGURAR</h4><ul><li><code>git --version</code></li><li><code>git config --global user.name</code></li><li><code>git config --global user.email</code></li><li><code>ssh-keygen -t ed25519</code></li><li><code>ssh-add ~/.ssh/id_ed25519</code></li><li><code>ssh -T git@github.com</code></li></ul></div>
+<div class="mnode c-magenta"><h4>INICIAR</h4><ul><li><code>git init</code></li><li><code>git clone URL</code></li><li><code>git remote add origin URL</code></li><li><code>git remote -v</code></li><li><code>git branch -M main</code></li><li><code>git push -u origin main</code></li></ul></div>
+<div class="mnode c-green"><h4>TRABAJAR</h4><ul><li><code>git status</code></li><li><code>git add .</code></li><li><code>git commit -m &quot;msg&quot;</code></li><li><code>git diff --staged</code></li><li><code>git log --oneline --graph</code></li><li><code>git blame archivo</code></li></ul></div></div>
+    <div class="core"><b>GIT</b><span>flujo completo</span></div>
+    <div class="mcol"><div class="mnode c-orange"><h4>SINCRONIZAR</h4><ul><li><code>git fetch origin</code></li><li><code>git log main..origin/main</code></li><li><code>git merge origin/main</code></li><li><code>git pull --rebase</code></li><li><code>git push</code></li><li><code>git push --tags</code></li></ul></div>
+<div class="mnode c-purple"><h4>RAMIFICAR</h4><ul><li><code>git branch -a</code></li><li><code>git switch -c rama</code></li><li><code>git merge rama</code></li><li><code>git rebase main</code></li><li><code>git merge --abort</code></li><li><code>git branch -d rama</code></li></ul></div>
+<div class="mnode c-yellow"><h4>DESHACER</h4><ul><li><code>git restore .</code></li><li><code>git reset --soft HEAD~1</code></li><li><code>git reset --hard HEAD~1</code></li><li><code>git revert HEAD</code></li><li><code>git stash / git stash pop</code></li><li><code>git reflog</code></li></ul></div></div>
+  </div>
+  <div class="cycle">
+    <div class="h">CICLO DE TRABAJO DIARIO</div>
+    <div class="steps">
+      <span class="step c-green">EDITAR</span><span class="arrow">&gt;</span>
+      <span class="step c-cyan">add</span><span class="arrow">&gt;</span>
+      <span class="step c-magenta">commit</span><span class="arrow">&gt;</span>
+      <span class="step c-yellow">pull</span><span class="arrow">&gt;</span>
+      <span class="step c-orange">push</span><span class="arrow">&gt;</span>
+      <span class="step c-purple">REPETIR</span>
+    </div>
+    <div class="foot">regla pr&aacute;ctica: commits peque&ntilde;os y frecuentes &gt; un commit gigante al final del d&iacute;a</div>
+  </div>
+</section>
+</main>
+
+<footer class="wrap">
+  <span>git --help &nbsp;|&nbsp; hoja de referencia</span>
+  <span>pulsa <b>/</b> para buscar &nbsp;&middot;&nbsp; ESC para limpiar</span>
+</footer>
+
+<button class="top" aria-label="Volver arriba">&uarr;</button>
+<script>
+const input = document.getElementById('q');
+const hits  = document.getElementById('hits');
+const items = [...document.querySelectorAll('.cmd,.note')];
+
+function filter(){
+  const q = input.value.trim().toLowerCase();
+  let n = 0;
+  items.forEach(el=>{
+    const ok = !q || (el.dataset.q||'').includes(q);
+    el.classList.toggle('hide', !ok);
+    if(ok) n++;
+  });
+  document.querySelectorAll('.block').forEach(b=>{
+    const vis = [...b.querySelectorAll('.cmd')].some(c=>!c.classList.contains('hide'));
+    b.classList.toggle('hide', !vis);
+  });
+  document.querySelectorAll('.sec').forEach(s=>{
+    const vis = [...s.querySelectorAll('.block,.note')].some(c=>!c.classList.contains('hide'));
+    s.classList.toggle('hide', !vis);
+  });
+  hits.textContent = q ? n + ' resultados' : items.length + ' comandos';
+}
+input.addEventListener('input', filter);
+document.addEventListener('keydown', e=>{
+  if(e.key === '/' && document.activeElement !== input){ e.preventDefault(); input.focus(); }
+  if(e.key === 'Escape'){ input.value=''; filter(); input.blur(); }
+});
+filter();
+
+document.addEventListener('click', async e=>{
+  const btn = e.target.closest('.copy');
+  if(!btn) return;
+  const txt = btn.closest('.cmd-line').querySelector('code').textContent;
+  try{ await navigator.clipboard.writeText(txt); }
+  catch(_){
+    const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);
+    ta.select();document.execCommand('copy');ta.remove();
+  }
+  btn.textContent='copiado'; btn.classList.add('ok');
+  setTimeout(()=>{btn.textContent='copiar';btn.classList.remove('ok');},1200);
+});
+
+const top = document.querySelector('.top');
+addEventListener('scroll', ()=> top.classList.toggle('on', scrollY > 700));
+top.addEventListener('click', ()=> scrollTo({top:0,behavior:'smooth'}));
+</script>
+</body>
+</html>
